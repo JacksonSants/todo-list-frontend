@@ -1,13 +1,12 @@
 import api from "../src/services/api";
 import { CalendarClock, Check, NotebookPen, PencilLine, X , CircleX } from "lucide-react";
 import { useEffect, useState } from "react";
-import axios from "axios";
 
 interface Activity{
   id: number;
   titulo: string;
   descricao: string;
-  tempo: date;
+  tempo: string;
 }
 
 export function App() {
@@ -15,8 +14,8 @@ export function App() {
   const [title, setTitle] = useState("");
   const [tempo, setTempo] = useState("");
   const [description, setDescription] = useState("");
-  const [tasks, setTasks] = useState([]);
-  const [taskToEdit, setTaskToEdit] = useState(null);
+  const [tasks, setTasks] = useState<Activity[]>([]);
+  const [taskToEdit, setTaskToEdit] = useState<Activity | null>(null);
   const [editModal, setEditModal] = useState(false);
 
   useEffect(() => {
@@ -39,9 +38,9 @@ export function App() {
 
   function isEditModalOpen(task: Activity) {
     setTaskToEdit(task);
-    setTitle(tasks.titulo);
-    setDescription(tasks.descricao);
-    setTempo(tasks.tempo);
+    setTitle(task.titulo);
+    setDescription(task.descricao);
+    setTempo(new Date(task.tempo).toISOString().slice(0, 16));
     setEditModal(true);
   }
 
@@ -62,7 +61,7 @@ export function App() {
       return;
     }
 
-    axios.post('api/Tarefas/CriarTarefa', {
+    api.post('api/Tarefas/CriarTarefa', {
       titulo: title,
       descricao: description,
       tempo: tempo
@@ -79,28 +78,32 @@ export function App() {
       });
   }
 
-      function handleEditActivity(e: React.FormEvent) {
-        e.preventDefault();
-    
-        if (!taskToEdit) return;
-    
-        axios.patch(`api/Tarefas/EditarTarefa/${taskToEdit.id}`, {
-            id: taskToEdit.id,
-            titulo: title,
-            descricao: description,
-            tempo: tempo,
-          })
-          .then((response) => {
-            setTasks((prevTasks) =>
-                prevTasks.map((task) => (task.id === taskToEdit.id ? response.data.dados: task)
-                )
-            );
-            isEditModalClose();
-          })
-          .catch((error) => {
-            console.error("Erro ao editar a atividade", error);
-          });
-      }
+  function handleEditActivity(e: React.FormEvent) {
+    e.preventDefault();
+
+    if (!taskToEdit) return;
+
+    api.put(`/api/Tarefas/EditarTarefa`, {
+        titulo: title,
+        descricao: description,
+        tempo: new Date(tempo).toISOString()
+    })
+    .then(({response}) => {
+        setTasks((prevTasks) =>
+            prevTasks.map((tarefa) =>
+                tarefa.id === taskToEdit.id
+                    ? { ...tarefa, titulo: title, descricao: description, tempo: tempo }
+                    : tarefa
+            )
+        );
+        isEditModalClose();
+    })
+    .catch((error) => {
+        console.error("Erro ao editar a atividade", error);
+    });
+}
+
+
 
   return (
     <div className="w-full p-10 flex justify-center gap-10">
@@ -128,18 +131,18 @@ export function App() {
             </div>
 
             
-            {tasks.map((tasks, index) => (
-              <div className="w-full flex flex-col gap-5 overflow-auto bg-slate-400 rounded-md items-center py-5">
+            {tasks.map((task, index) => (
+              <div key={task.id}  className="w-full flex flex-col gap-5 overflow-auto bg-slate-400 rounded-md items-center py-5">
                 <div key={index} className="w-full flex justify-between px-10 gap-10">
                   <div className="w-full flex justify-between">
                     <div className="flex gap-3">
-                      <h3>{tasks.id}</h3>
-                      <h3>{tasks.titulo}</h3>
+                      <h3>{task.id}</h3>
+                      <h3>{task.titulo}</h3>
                     </div>
-                    <h3>{tasks.tempo}</h3>
+                    <h3>{task.tempo}</h3>
                   </div>
                   <div className="flex gap-5 items-center">
-                    <PencilLine onClick={isEditModalOpen} />
+                  <PencilLine onClick={() => isEditModalOpen(task)} />
                     <Check />
                     <CircleX />
                   </div>
@@ -207,7 +210,7 @@ export function App() {
         </div>
       )}
 
-{editModal && taskToEdit &&(
+      {editModal && taskToEdit&&(
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center">
           <div className="w-[640px] rounded-xl py-5 px-6 bg-zinc-900 space-y-5">
             <div className="space-y-2">
@@ -241,7 +244,7 @@ export function App() {
                   name="tempo"
                   placeholder="Hora de término..."
                   className="bg-transparent flex-1 text-lg text-zinc-500 outline-none"
-                  value={tempo}
+                  value={new Date(tempo).toISOString().slice(0, 16)}
                   onChange={(e) => setTempo(e.target.value)}
                 />
               </div>
@@ -265,7 +268,6 @@ export function App() {
           </div>
         </div>
       )}
-
     </div>
   );
 }
