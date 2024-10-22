@@ -67,11 +67,11 @@ export function App() {
       tempo: tempo
     })
       .then(response => {
-        setTasks(response.data.dados); // Atualiza a lista de tarefas com a nova tarefa criada
-        setTitle("");  // Limpa o campo de título
-        setTempo("");  // Limpa o campo de tempo
-        setDescription("");  // Limpa o campo de descrição
-        createActivityModelClose();  // Fecha o modal
+        setTasks(response.data.dados);
+        setTitle("");
+        setTempo("");
+        setDescription("");
+        createActivityModelClose();
       })
       .catch(error => {
         console.error("Erro ao criar tarefa", error);
@@ -83,7 +83,7 @@ export function App() {
 
     if (!taskToEdit) return;
 
-    api.put(`/api/Tarefas/EditarTarefa`, {
+    api.put(`/api/Tarefas/EditarTarefa/${taskToEdit.id}`,{
         titulo: title,
         descricao: description,
         tempo: new Date(tempo).toISOString()
@@ -103,28 +103,44 @@ export function App() {
     });
 }
 
+function handleDeleteActivity(id: number) {
+  if (window.confirm("Deseja excluir essa atividade?")) {
+    api.delete(`/api/Tarefas/ExcluirTarefa/${id}`)
+      .then(response => {
+        setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
+      })
+      .catch(error => {
+        console.error("Erro ao excluir a tarefa:", error);
+      });
+  }
+}
+
 
 
   return (
     <div className="w-full p-10 flex justify-center gap-10">
       <div className="h-[85vh] w-[100vh] flex flex-col gap-5 overflow-auto">
-        <button onClick={createActivityModelOpen} className="bg-lime-300 text-lime-950 rounded-lg px-5 py-2 font-medium flex  gap-2 hover:bg-lime-400">
+        <button onClick={createActivityModelOpen} className="bg-lime-300 text-lime-950 rounded-lg px-5 py-2 font-medium flex justify-center gap-2 hover:bg-lime-400">
           Criar Nova Atividade
         </button>
+            <h1 onClick={createActivityModelOpen} className="bg-lime-300 text-lime-950 rounded-lg px-5 py-2 font-medium flex justify-center gap-2 hover:bg-lime-400">
+              Atividades Realizadas
+            </h1>
+
       </div>
 
           <div className="w-full p-10 flex flex-col gap-10">
-            <div className="h-[full] w-full flex flex-col gap=5 overflow-auto bg-slate-400 rounded-md items-center">
-              <h2 className="text-zinc-100">Lista de Tarefas</h2>
-              <div className="w-full py-3 flex justify-between px-10">
+            <h2 className="text-zinc-100 flex justify-center font-bold">Lista de Tarefas</h2>
+            <div className="h-[full] w-full flex flex-col gap=5 overflow-auto text-zinc-100 rounded-md items-center">
+              <div className="w-full py-3 flex justify-between px-20">
                 <div className="w-full flex justify-between">
-                  <div className="flex gap-3">
+                  <div className="flex gap-3 flex-1">
                     <h3>N°</h3>
                     <h3>Titulo</h3>
                   </div>
-                  <h3>Data</h3>
                 </div>
-                <div>
+                <div className="flex gap-48">
+                  <h3>Data</h3>
                   <h3>Ações</h3>
                 </div>
               </div>
@@ -142,9 +158,9 @@ export function App() {
                     <h3>{task.tempo}</h3>
                   </div>
                   <div className="flex gap-5 items-center">
-                  <PencilLine onClick={() => isEditModalOpen(task)} />
+                    <PencilLine onClick={() => isEditModalOpen(task)} />
                     <Check />
-                    <CircleX />
+                    <CircleX onClick={() => handleDeleteActivity(task.id)} />
                   </div>
                 </div>
                 </div>
