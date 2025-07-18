@@ -1,6 +1,6 @@
-import api from "../src/services/api";
-import { CalendarClock, Check, NotebookPen, PencilLine, X , CircleX } from "lucide-react";
+import { Check, CircleX, NotebookPen, PencilLine, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import api from "../src/services/api";
 
 interface Activity{
   id: number;
@@ -40,7 +40,6 @@ export function App() {
     setTaskToEdit(task);
     setTitle(task.titulo);
     setDescription(task.descricao);
-    setTempo(new Date(task.tempo).toISOString().slice(0, 16));
     setEditModal(true);
   }
 
@@ -56,7 +55,7 @@ export function App() {
   function handleCreateActivity(e) {
     e.preventDefault();
 
-    if (!title || !tempo || !description) {
+    if (!title || !description) {
       alert("Todos os campos são obrigatórios.");
       return;
     }
@@ -64,13 +63,12 @@ export function App() {
     api.post('api/Tarefas/CriarTarefa', {
       titulo: title,
       descricao: description,
-      tempo: tempo
     })
       .then(response => {
         setTasks(response.data.dados);
         setTitle("");
-        setTempo("");
         setDescription("");
+        setTempo("");
         createActivityModelClose();
       })
       .catch(error => {
@@ -86,13 +84,12 @@ export function App() {
     api.put(`/api/Tarefas/EditarTarefa/${taskToEdit.id}`,{
         titulo: title,
         descricao: description,
-        tempo: new Date(tempo).toISOString()
     })
-    .then(({response}) => {
+    .then(() => {
         setTasks((prevTasks) =>
             prevTasks.map((tarefa) =>
                 tarefa.id === taskToEdit.id
-                    ? { ...tarefa, titulo: title, descricao: description, tempo: tempo }
+                    ? { ...tarefa, titulo: title, descricao: description}
                     : tarefa
             )
         );
@@ -106,7 +103,7 @@ export function App() {
 function handleDeleteActivity(id: number) {
   if (window.confirm("Deseja excluir essa atividade?")) {
     api.delete(`/api/Tarefas/ExcluirTarefa/${id}`)
-      .then(response => {
+      .then(() => {
         setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
       })
       .catch(error => {
@@ -115,17 +112,12 @@ function handleDeleteActivity(id: number) {
   }
 }
 
-
-
   return (
     <div className="w-full p-10 flex justify-center gap-10">
       <div className="h-[85vh] w-[100vh] flex flex-col gap-5 overflow-auto">
         <button onClick={createActivityModelOpen} className="bg-lime-300 text-lime-950 rounded-lg px-5 py-2 font-medium flex justify-center gap-2 hover:bg-lime-400">
           Criar Nova Atividade
         </button>
-            <h1 onClick={createActivityModelOpen} className="bg-lime-300 text-lime-950 rounded-lg px-5 py-2 font-medium flex justify-center gap-2 hover:bg-lime-400">
-              Atividades Realizadas
-            </h1>
 
       </div>
 
@@ -194,18 +186,6 @@ function handleDeleteActivity(id: number) {
                 />
               </div>
 
-              <div className="flex px-2 bg-zinc-950 border-l-zinc-800 rounded-lg items-center gap-2">
-                <CalendarClock className="size-5 text-zinc-400" />
-                <input
-                  type="datetime-local"
-                  name="tempo"
-                  placeholder="Hora de término..."
-                  className="bg-transparent flex-1 text-lg text-zinc-500 outline-none"
-                  value={tempo}
-                  onChange={(e) => setTempo(e.target.value)}
-                />
-              </div>
-
               <div className="flex px-2 bg-zinc-950 border-l-zinc-800 rounded-lg gap-2">
                 <NotebookPen className="size-5 text-zinc-500" />
                 <textarea
@@ -250,18 +230,6 @@ function handleDeleteActivity(id: number) {
                   className="bg-transparent text-lg text-zinc-100 placeholder:text-zinc-500 outline-none"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                />
-              </div>
-
-              <div className="flex px-2 bg-zinc-950 border-l-zinc-800 rounded-lg items-center gap-2">
-                <CalendarClock className="size-5 text-zinc-400" />
-                <input
-                  type="datetime-local"
-                  name="tempo"
-                  placeholder="Hora de término..."
-                  className="bg-transparent flex-1 text-lg text-zinc-500 outline-none"
-                  value={new Date(tempo).toISOString().slice(0, 16)}
-                  onChange={(e) => setTempo(e.target.value)}
                 />
               </div>
 
