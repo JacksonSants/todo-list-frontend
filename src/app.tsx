@@ -7,6 +7,7 @@ interface Activity{
   titulo: string;
   descricao: string;
   tempo: string;
+  concluida?: boolean;
 }
 
 export function App() {
@@ -17,6 +18,8 @@ export function App() {
   const [tasks, setTasks] = useState<Activity[]>([]);
   const [taskToEdit, setTaskToEdit] = useState<Activity | null>(null);
   const [editModal, setEditModal] = useState(false);
+  const [isTaskCompleteModal, setIsTaskCompleteModal] = useState(false);
+  const [taskComplete, setTaskComplete] = useState<Activity | null>(null);
 
   useEffect(() => {
     api.get('api/Tarefas/ListarTarefas')
@@ -48,8 +51,19 @@ export function App() {
     setTaskToEdit(null);
     setTitle("");
     setDescription("");
-    setTempo("")
+    setTempo("");
   }
+
+  function openCompleteModal(task: Activity) {
+    setTaskComplete(task);
+    setIsTaskCompleteModal(true);
+  }
+
+function closeCompleteModal() {
+  setTaskComplete(null);
+  setIsTaskCompleteModal(false);
+}
+
 
   // Função para criar uma nova atividade
   function handleCreateActivity(e) {
@@ -112,6 +126,24 @@ function handleDeleteActivity(id: number) {
   }
 }
 
+function handleTaskComplete(task: Activity) {
+  if (!taskComplete) return;
+  api.put(`/api/Tarefas/TarefaConcluida/${task.id}`)
+    .then(() => {
+      setTasks((prevTasks) =>
+        prevTasks.map((tarefa) =>
+          tarefa.id === task.id
+            ? { ...tarefa, concluida: true }
+            : tarefa
+        )
+      );
+      closeCompleteModal();
+    })
+    .catch((error) => {
+      console.error("Erro ao marcar tarefa como concluída", error);
+    });
+}
+
   return (
     <div className="w-full p-10 flex justify-center gap-10">
       <div className="h-[85vh] w-[100vh] flex flex-col gap-5 overflow-auto">
@@ -151,7 +183,7 @@ function handleDeleteActivity(id: number) {
                   </div>
                   <div className="flex gap-5 items-center">
                     <PencilLine onClick={() => isEditModalOpen(task)} />
-                    <Check />
+                    <Check onClick={() => openCompleteModal(task)} />
                     <CircleX onClick={() => handleDeleteActivity(task.id)} />
                   </div>
                 </div>
@@ -252,6 +284,36 @@ function handleDeleteActivity(id: number) {
           </div>
         </div>
       )}
+
+      {isTaskCompleteModal && taskComplete && (
+  <div className="fixed inset-0 bg-black/60 flex items-center justify-center">
+    <div className="w-[500px] rounded-xl py-6 px-6 bg-zinc-900 space-y-5">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-zinc-100">Concluir Atividade</h2>
+        <X className="text-zinc-400 cursor-pointer" onClick={closeCompleteModal} />
+      </div>
+      <p className="text-zinc-300">
+        Deseja marcar a atividade <strong className="text-white">"{taskComplete.titulo}"</strong> como concluída?
+      </p>
+      <div className="flex justify-end gap-4">
+        <button
+          onClick={closeCompleteModal}
+          className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+        >
+          Cancelar
+        </button>
+        <button
+          onClick={() => handleTaskComplete(taskComplete)}
+          className="bg-lime-400 text-lime-950 px-4 py-2 rounded-lg font-medium hover:bg-lime-500"
+        >
+          Concluir
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+      
     </div>
   );
 }
