@@ -5,3 +5,49 @@
 * {
     min-width: 0;
 }
+
+/* Aplica apenas quando usar a classe rdp-lime */
+.rdp-lime {
+  --rdp-accent-color: #65a30d;          /* lime-600 */
+  --rdp-background-color: #65a30d;
+}
+
+/* Dia selecionado */
+.rdp-lime .rdp-day_selected,
+.rdp-lime .rdp-day_selected:hover,
+.rdp-lime .rdp-day_selected:focus {
+  background-color: #bef264;
+  color: #fff;
+}
+
+/* Dia de hoje */
+.rdp-lime .rdp-day_today {
+  color: #bef264;
+  font-weight: 600;
+}
+
+/* Setas */
+.rdp-lime .rdp-nav_button {
+  color: #bef264;
+}
+
+.rdp-lime .rdp-nav_button:hover {
+  background-color: rgba(101, 163, 13, 0.15);
+}
+
+
+/* Botão da navegação */
+.rdp-lime .rdp-nav_button {
+  color: #65a30d; /* fallback */
+}
+
+/* SVG da seta */
+.rdp-lime .rdp-nav_button svg {
+  stroke: #65a30d;   /* lime-600 */
+}
+
+/* Hover */
+.rdp-lime .rdp-nav_button:hover svg {
+  stroke: #65a30d;
+}
+
