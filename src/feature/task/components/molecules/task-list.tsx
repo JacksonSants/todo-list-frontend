@@ -1,7 +1,5 @@
 import { Task } from "../../domain/entities/Task"
 import { TaskItem } from "../organisms/task-item"
-
-
 interface Props {
   tasks: Task[]
   onEdit: (task: Task) => void
@@ -13,7 +11,6 @@ export function TaskList({ tasks, onEdit, onDelete, onComplete }: Props) {
   return (
     <div className="w-full flex flex-col gap-3 text-zinc-100">
       
-      {/* Header */}
       <div className="w-full flex justify-between px-6 py-3 border-b border-zinc-700 font-semibold">
         <div className="flex gap-6 w-1/2">
           <span className="w-10">N°</span>
@@ -26,7 +23,6 @@ export function TaskList({ tasks, onEdit, onDelete, onComplete }: Props) {
         </div>
       </div>
 
-      {/* Lista */}
       <div className="flex flex-col gap-3">
         {tasks.map(task => (
           <TaskItem

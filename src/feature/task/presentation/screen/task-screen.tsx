@@ -91,7 +91,6 @@ export function TaskScreen() {
             onChangeDateStart={(v) =>
               setTaskForm(prev => ({ ...prev, dateStart: v }))
             }
-
             onSubmit={handleCreate}
             onClose={handleClose}
             submitLabel="Salvar"

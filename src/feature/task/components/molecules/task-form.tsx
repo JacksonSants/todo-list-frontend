@@ -3,9 +3,9 @@ import { SubmitButton } from "../atom/button"
 import { Task } from "../../domain/entities/Task"
 import { DayPicker } from "react-day-picker"
 import { useState } from "react"
-import { format } from "date-fns" // Útil para formatar a data exibida
-import { ptBR } from "date-fns/locale" // Tradução para PT-BR
-import "react-day-picker/dist/style.css" // Não esqueça do CSS base
+import { format } from "date-fns"
+import { ptBR } from "date-fns/locale"
+import "react-day-picker/dist/style.css" 
 
 interface TaskProps {
   currentTask: Task,
@@ -26,7 +26,7 @@ export function TaskForm({
   onChangeDateStart,
   submitLabel
 }: TaskProps) {
-  // Estado para controlar se o calendário está aberto
+  
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
 
   function handleSubmit(e: React.FormEvent) {
@@ -39,14 +39,12 @@ export function TaskForm({
     onSubmit(task)
   }
 
-  // Converte a string dateStart para Objeto Date para o DayPicker
   const selectedDate = currentTask.dateStart ? new Date(currentTask.dateStart) : undefined
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
       <div className="w-[640px] rounded-xl py-5 px-6 bg-zinc-900 space-y-5 shadow-2xl border border-zinc-800">
 
-        {/* HEADER */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <PencilLine className="text-lime-400 size-5" />
@@ -57,9 +55,8 @@ export function TaskForm({
           </button>
         </div>
 
-        {/* FORM */}
         <form className="space-y-4" onSubmit={handleSubmit}>
-          {/* Input Título */}
+          
           <div className="flex px-3 h-12 bg-zinc-950 border border-zinc-800 rounded-lg items-center gap-2 focus-within:border-lime-400 transition-colors">
             <NotebookPen className="size-5 text-zinc-400" />
             <input
@@ -72,7 +69,6 @@ export function TaskForm({
             />
           </div>
 
-          {/* Textarea Descrição */}
           <div className="flex p-3 bg-zinc-950 border border-zinc-800 rounded-lg gap-2 focus-within:border-lime-400 transition-colors">
             <textarea
               rows={3}
@@ -84,7 +80,6 @@ export function TaskForm({
             />
           </div>
 
-          {/* SELETOR DE DATA CUSTOMIZADO */}
           <div className="relative">
             <div className="flex justify-evenly">
               <div className="w-full px-2">
@@ -137,7 +132,6 @@ export function TaskForm({
               </div>
             )}
           </div>
-
 
           <SubmitButton
             type="submit"
